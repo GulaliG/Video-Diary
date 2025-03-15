@@ -1,74 +1,170 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+// * Ana sayfa
+import React, { useState, useCallback } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useVideoStore } from '@/store/videoStore';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const CustomConfirmModal = ({ visible, message, onConfirm, onCancel }: {
+  visible: boolean;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) => {
+  return (
+    <Modal visible={visible} transparent>
+      <View className="flex-1 justify-center items-center bg-black/70">
+        <View className="bg-gray-800 p-8 rounded-lg w-4/5 shadow-lg">
+          <Text className="text-white text-lg text-center font-semibold">{message}</Text>
+          <View className="flex-row justify-between mt-6 space-x-4">
+            <TouchableOpacity onPress={onCancel} className="bg-gray-600 px-6 py-3 w-2/5 rounded-lg">
+              <Text className="text-white text-lg font-semibold text-center">İptal</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onConfirm} className="bg-red-500 px-6 py-3 w-2/5 rounded-lg">
+              <Text className="text-white text-lg font-semibold text-center">Sil</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 export default function HomeScreen() {
+  const videos = useVideoStore((state) => state.videos);
+  const loadVideos = useVideoStore((state) => state.loadVideos);
+  const removeVideo = useVideoStore((state) => state.removeVideo);
+  const router = useRouter();
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadVideos();
+    }, [loadVideos])
+  );
+
+  const confirmDelete = (videoId: string) => {
+    setSelectedVideoId(videoId);
+    setModalVisible(true);
+  };
+
+  const handleDelete = () => {
+    if (selectedVideoId) {
+      removeVideo(selectedVideoId);
+      setSelectedVideoId(null);
+    }
+    setModalVisible(false);
+  };
+
+  const handleDownload = (videoId: string) => {};
+
+  const AnimatedItem = ({ item }: { item: any }) => {
+    const translateX = useSharedValue(0);
+    const deleteOpacity = useSharedValue(0);
+    const downloadOpacity = useSharedValue(0);
+
+    const swipeGesture = Gesture.Pan()
+      .onUpdate((event: { translationX: number }) => {
+        translateX.value = event.translationX;
+        if (event.translationX < 0) {
+          deleteOpacity.value = withTiming(event.translationX < -20 ? 1 : 0);
+          downloadOpacity.value = withTiming(0);
+        } else if (event.translationX > 0) {
+          downloadOpacity.value = withTiming(event.translationX > 20 ? 1 : 0);
+          deleteOpacity.value = withTiming(0);
+        }
+      })
+      .onEnd(() => {
+        if (translateX.value < -50) {
+          translateX.value = withTiming(-50, { duration: 200 });
+          deleteOpacity.value = withTiming(1);
+        } else if (translateX.value > 50) {
+          translateX.value = withTiming(50, { duration: 200 });
+          downloadOpacity.value = withTiming(1);
+        } else {
+          translateX.value = withTiming(0, { duration: 200 });
+          deleteOpacity.value = withTiming(0);
+          downloadOpacity.value = withTiming(0);
+        }
+      });
+
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ translateX: translateX.value }],
+    }));
+
+    const deleteButtonStyle = useAnimatedStyle(() => ({
+      opacity: deleteOpacity.value,
+      transform: [{ translateX: deleteOpacity.value ? 0 : 30 }],
+    }));
+
+    const downloadButtonStyle = useAnimatedStyle(() => ({
+      opacity: downloadOpacity.value,
+      transform: [{ translateX: downloadOpacity.value ? 0 : -30 }],
+    }));
+
+    return (
+      <View className="relative rounded-xl overflow-hidden mb-2">
+        <Animated.View
+          style={[downloadButtonStyle]}
+          className="absolute top-0 left-0 bottom-4 w-12 bg-green-500 flex items-center rounded-xl justify-center"
+        >
+          <TouchableOpacity onPress={() => handleDownload(item.id)}>
+            <MaterialCommunityIcons name="download" size={24} color="white" />
+          </TouchableOpacity>
+        </Animated.View>
+
+        <Animated.View
+          style={[deleteButtonStyle]}
+          className="absolute top-0 right-0 bottom-4 w-12 bg-red-500 flex items-center rounded-xl justify-center"
+        >
+          <TouchableOpacity onPress={() => confirmDelete(item.id)}>
+            <MaterialCommunityIcons name="trash-can-outline" size={24} color="white" />
+          </TouchableOpacity>
+        </Animated.View>
+
+        <GestureDetector gesture={swipeGesture}>
+          <Animated.View style={[animatedStyle]} className="bg-gray-900 p-4 rounded-xl mb-4 shadow-lg border border-gray-800">
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: '/details', params: { id: item.id } })}
+              activeOpacity={0.8}
+            >
+              <Text className="text-white text-xl font-semibold mt-2">{item.name}</Text>
+              <Text className="text-gray-400">{item.description}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </GestureDetector>
+      </View>
+    );
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View className="flex-1 bg-gray-900 pt-10 pr-8 pl-8">
+      <CustomConfirmModal
+        visible={modalVisible}
+        message="Bu videoyu silmek istediğinizden emin misiniz?"
+        onConfirm={handleDelete}
+        onCancel={() => setModalVisible(false)}
+      />
+
+      <Text className="text-white text-2xl font-bold mb-4">Kırpılmış Videolar</Text>
+      {videos.length === 0 ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-400 text-lg text-center">
+            Henüz video eklenmedi. Bir video kırpın!
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={videos}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          renderItem={({ item }) => <AnimatedItem item={item} />}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      )}
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
