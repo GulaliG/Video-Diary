@@ -1,16 +1,5 @@
-// * Video kırpma
 import React, { useState, useRef, useEffect } from 'react';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Modal,
-    Image,
-    ScrollView,
-    TextInput,
-    Animated,
-    Dimensions,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Image, ScrollView, TextInput, Animated, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { ResizeMode, AVPlaybackStatus, AVPlaybackStatusSuccess, Video, Audio } from 'expo-av';
 import { useVideoStore } from '@/store/videoStore';
@@ -143,10 +132,10 @@ interface TimelineProps {
 
 const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart, onTouchEnd }: TimelineProps) => {
     const THUMB_WIDTH = 60;
-    const DURATION_WINDOW_DURATION = 5;
-    const selectionWidth = DURATION_WINDOW_DURATION * THUMB_WIDTH;
+    const cropDuration = 5; // Gerçek kırpma süresi 5 saniye
+    const actualSelectionWidth = cropDuration * THUMB_WIDTH; // 5 saniye = 300px
     const screenWidth = Dimensions.get('screen').width;
-    const spacerWidth = screenWidth / 2 - selectionWidth / 2;
+    const spacerWidth = screenWidth / 2 - actualSelectionWidth / 2;
 
     const [thumbnails, setThumbnails] = useState<{ uri: string; time: number }[]>([]);
     const [progressModalVisible, setProgressModalVisible] = useState(false);
@@ -167,7 +156,7 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
                     const thumbUri = await getThumbnail(videoUri, i);
                     newThumbs.push({ uri: thumbUri, time: i });
                     setProgress((i + 1) / totalFrames);
-                } catch (error) {}
+                } catch (error) { }
             }
             setThumbnails(newThumbs);
             setProgressModalVisible(false);
@@ -179,9 +168,14 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
         const effectiveOffset = Math.max(0, offsetX - spacerWidth);
         scrollOffset.setValue(effectiveOffset);
         const leftTime = effectiveOffset / THUMB_WIDTH;
-        const popTime = leftTime + (selectionWidth / 2) / THUMB_WIDTH;
+        // Zaman hesabı için asıl 5 saniyelik alanı esas alıyoruz
+        const popTime = leftTime + (actualSelectionWidth / 2) / THUMB_WIDTH;
         onChangeStart(popTime);
     };
+
+    // Görsel olarak overlay’i küçültmek için ölçek faktörü uyguluyoruz.
+    const overlayScaleFactor = 0.5; // %50 görsel boyut
+    const visualOverlayWidth = actualSelectionWidth * overlayScaleFactor; // Örneğin 300px'in %50'si = 150px
 
     return (
         <View className="absolute w-full bottom-0 h-20 bg-gray-800 rounded-lg mb-4">
@@ -196,20 +190,19 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
                 onMomentumScrollEnd={onTouchEnd}
                 className="px-2 py-2"
             >
-
                 <View style={{ width: spacerWidth }} />
                 {thumbnails.map((thumb, index) => (
                     <Image key={index} source={{ uri: thumb.uri }} className="w-16 h-16 mr-1" />
                 ))}
-
                 <View style={{ width: spacerWidth }} />
             </ScrollView>
 
+            {/* Overlay görseli, merkezde yerleşecek şekilde */}
             <View
                 className="absolute top-0 bottom-0"
                 style={{
-                    left: screenWidth / 2 - selectionWidth / 2,
-                    width: selectionWidth,
+                    left: screenWidth / 2 - visualOverlayWidth / 2,
+                    width: visualOverlayWidth,
                     backgroundColor: 'green',
                     opacity: 0.3,
                     zIndex: 25,
@@ -281,6 +274,7 @@ export default function VideoCropScreen() {
             return;
         }
         try {
+            // Crop işlemi 5 saniye üzerinden yapılıyor
             const croppedUri = await cropVideo(videoUri, startTime, 5);
             const newVideo = {
                 id: Date.now().toString(),
@@ -316,7 +310,7 @@ export default function VideoCropScreen() {
                         <Video
                             ref={playerRef}
                             source={{ uri: videoUri }}
-                            style={{ width: '100%', height: 500 }}
+                            style={{ width: '100%', height: '100%' }}
                             resizeMode={ResizeMode.CONTAIN}
                             useNativeControls={true}
                             onPlaybackStatusUpdate={handlePlaybackStatusUpdate}

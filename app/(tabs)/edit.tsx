@@ -6,8 +6,9 @@ import { useVideoStore } from '@/store/videoStore';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Video, ResizeMode } from 'expo-av';
 
-//Zod
+// Zod şeması
 const videoSchema = z.object({
     videoName: z.string().min(3, "Video adı en az 3 karakter olmalı"),
     videoDescription: z.string().min(5, "Açıklama en az 5 karakter olmalı"),
@@ -54,13 +55,21 @@ export default function EditVideoScreen() {
     return (
         <View className="flex-1 bg-gray-900 px-6 py-8">
             <Text className="text-white text-2xl font-bold mb-6">Video Düzenle</Text>
+            <View className="w-full h-3/4 bg-black rounded-lg mt-8">
+                <Video
+                    source={{ uri: video.uri }}
+                    style={{ width: '100%', height: '100%' }}
+                    resizeMode={ResizeMode.CONTAIN}
+                    useNativeControls={true}
+                />
+            </View>
 
             <Controller
                 control={control}
                 name="videoName"
                 render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-                        className="bg-gray-800 text-white p-3 rounded-lg w-full text-lg"
+                        className="bg-gray-800 text-white p-3 rounded-lg w-full text-lg mt-4"
                         placeholder="Video İsmi"
                         placeholderTextColor="#b3b3b3"
                         value={value}
