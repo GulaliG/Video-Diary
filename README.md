@@ -27,7 +27,7 @@ This app is built with **modern best practices** for React Native development, e
 | **Tanstack Query**    | Handling async operations & caching |
 | **FFmpegKit**        | Video cropping & thumbnail generation |
 | **NativeWind**        | Tailwind-based styling for React Native |
-| **Expo Video**        | Video rendering & playback |
+| **Expo Video (expo-av)**        | Video rendering & playback |
 | **React Hook Form + Zod** | Form validation |
 | **React Native Reanimated** | Smooth animations |
 
