@@ -6,14 +6,8 @@ import { useVideoStore } from '@/store/videoStore';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-<<<<<<< HEAD
-import { Video, ResizeMode } from 'expo-av';
 
 // Zod şeması
-=======
-
-//Zod
->>>>>>> 965c23b (İlk commit: Video Diary App)
 const videoSchema = z.object({
     videoName: z.string().min(3, "Video adı en az 3 karakter olmalı"),
     videoDescription: z.string().min(5, "Açıklama en az 5 karakter olmalı"),
@@ -58,24 +52,15 @@ export default function EditVideoScreen() {
     }
 
     return (
-<<<<<<< HEAD
         <View className="flex-1 bg-gray-900 px-6 py-4">
             <Text className="text-white text-2xl font-bold mb-4 mt-8">Video Düzenle</Text>
-=======
-        <View className="flex-1 bg-gray-900 px-6 py-8">
-            <Text className="text-white text-2xl font-bold mb-6">Video Düzenle</Text>
->>>>>>> 965c23b (İlk commit: Video Diary App)
 
             <Controller
                 control={control}
                 name="videoName"
                 render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-<<<<<<< HEAD
                         className="bg-gray-800 text-white p-3 rounded-lg w-full text-lg mt-4"
-=======
-                        className="bg-gray-800 text-white p-3 rounded-lg w-full text-lg"
->>>>>>> 965c23b (İlk commit: Video Diary App)
                         placeholder="Video İsmi"
                         placeholderTextColor="#b3b3b3"
                         value={value}
@@ -135,8 +120,4 @@ export default function EditVideoScreen() {
             </Modal>
         </View>
     );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 965c23b (İlk commit: Video Diary App)

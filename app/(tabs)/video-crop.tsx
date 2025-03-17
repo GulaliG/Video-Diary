@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // video-crop.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, Image, ScrollView, TextInput, Animated, Dimensions } from 'react-native';
@@ -10,28 +9,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { useCropVideoMutation } from '../../utils/useFFmpegMutations'; // Import TanStack Query hook
 import { getThumbnail } from '@/utils/ffmpegServices';
-=======
-// * Video kırpma
-import React, { useState, useRef, useEffect } from 'react';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Modal,
-    Image,
-    ScrollView,
-    TextInput,
-    Animated,
-    Dimensions,
-} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { ResizeMode, AVPlaybackStatus, AVPlaybackStatusSuccess, Video, Audio } from 'expo-av';
-import { useVideoStore } from '@/store/videoStore';
-import { cropVideo, getThumbnail } from '../../utils/ffmpegUtils';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
->>>>>>> 965c23b (İlk commit: Video Diary App)
 
 function isStatusSuccess(status: AVPlaybackStatus): status is AVPlaybackStatusSuccess {
     return status.isLoaded && !('error' in status);
@@ -157,17 +134,10 @@ interface TimelineProps {
 
 const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart, onTouchEnd }: TimelineProps) => {
     const THUMB_WIDTH = 60;
-<<<<<<< HEAD
     const cropDuration = 5; // Gerçek kırpma süresi 5 saniye
     const actualSelectionWidth = cropDuration * THUMB_WIDTH; // 5 saniye = 300px
     const screenWidth = Dimensions.get('screen').width;
     const spacerWidth = screenWidth / 2 - actualSelectionWidth / 2;
-=======
-    const DURATION_WINDOW_DURATION = 5;
-    const selectionWidth = DURATION_WINDOW_DURATION * THUMB_WIDTH;
-    const screenWidth = Dimensions.get('screen').width;
-    const spacerWidth = screenWidth / 2 - selectionWidth / 2;
->>>>>>> 965c23b (İlk commit: Video Diary App)
 
     const [thumbnails, setThumbnails] = useState<{ uri: string; time: number }[]>([]);
     const [progressModalVisible, setProgressModalVisible] = useState(false);
@@ -183,22 +153,15 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
             setProgress(0);
             const totalFrames = Math.floor(duration);
             const newThumbs: { uri: string; time: number }[] = [];
-<<<<<<< HEAD
             // Thumbnail üretiminde doğrudan servis fonksiyonunu kullanıyoruz.
-=======
->>>>>>> 965c23b (İlk commit: Video Diary App)
             for (let i = 0; i < totalFrames; i++) {
                 try {
                     const thumbUri = await getThumbnail(videoUri, i);
                     newThumbs.push({ uri: thumbUri, time: i });
                     setProgress((i + 1) / totalFrames);
-<<<<<<< HEAD
                 } catch (error) {
                     // Hata yönetimi
                 }
-=======
-                } catch (error) {}
->>>>>>> 965c23b (İlk commit: Video Diary App)
             }
             setThumbnails(newThumbs);
             setProgressModalVisible(false);
@@ -210,7 +173,6 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
         const effectiveOffset = Math.max(0, offsetX - spacerWidth);
         scrollOffset.setValue(effectiveOffset);
         const leftTime = effectiveOffset / THUMB_WIDTH;
-<<<<<<< HEAD
         // Zaman hesabı için asıl 5 saniyelik alanı esas alıyoruz
         const popTime = leftTime + (actualSelectionWidth / 2) / THUMB_WIDTH;
         onChangeStart(popTime);
@@ -220,12 +182,6 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
     const overlayScaleFactor = 0.5; // %50
     const visualOverlayWidth = actualSelectionWidth * overlayScaleFactor;
 
-=======
-        const popTime = leftTime + (selectionWidth / 2) / THUMB_WIDTH;
-        onChangeStart(popTime);
-    };
-
->>>>>>> 965c23b (İlk commit: Video Diary App)
     return (
         <View className="absolute w-full bottom-0 h-20 bg-gray-800 rounded-lg mb-4">
             <ScrollView
@@ -239,15 +195,10 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
                 onMomentumScrollEnd={onTouchEnd}
                 className="px-2 py-2"
             >
-<<<<<<< HEAD
-=======
-
->>>>>>> 965c23b (İlk commit: Video Diary App)
                 <View style={{ width: spacerWidth }} />
                 {thumbnails.map((thumb, index) => (
                     <Image key={index} source={{ uri: thumb.uri }} className="w-16 h-16 mr-1" />
                 ))}
-<<<<<<< HEAD
                 <View style={{ width: spacerWidth }} />
             </ScrollView>
 
@@ -257,17 +208,6 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
                 style={{
                     left: screenWidth / 2 - visualOverlayWidth / 2,
                     width: visualOverlayWidth,
-=======
-
-                <View style={{ width: spacerWidth }} />
-            </ScrollView>
-
-            <View
-                className="absolute top-0 bottom-0"
-                style={{
-                    left: screenWidth / 2 - selectionWidth / 2,
-                    width: selectionWidth,
->>>>>>> 965c23b (İlk commit: Video Diary App)
                     backgroundColor: 'green',
                     opacity: 0.3,
                     zIndex: 25,
@@ -290,12 +230,9 @@ export default function VideoCropScreen() {
     const addVideo = useVideoStore((state) => state.addVideo);
     const playerRef = useRef<Video>(null);
 
-<<<<<<< HEAD
     // TanStack Query mutation kullanımı
     const cropVideoMutation = useCropVideoMutation();
 
-=======
->>>>>>> 965c23b (İlk commit: Video Diary App)
     useEffect(() => {
         (async () => {
             await Audio.setAudioModeAsync({
@@ -314,11 +251,7 @@ export default function VideoCropScreen() {
 
     const pickVideo = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
-<<<<<<< HEAD
             mediaTypes: ['videos'],
-=======
-            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
->>>>>>> 965c23b (İlk commit: Video Diary App)
             allowsEditing: false,
         });
         if (!result.canceled && result.assets.length > 0) {
@@ -343,16 +276,11 @@ export default function VideoCropScreen() {
         setFormModalVisible(true);
     };
 
-<<<<<<< HEAD
     const handleFormSubmit = (data: { videoName: string; videoDescription: string }) => {
-=======
-    const handleFormSubmit = async (data: { videoName: string; videoDescription: string }) => {
->>>>>>> 965c23b (İlk commit: Video Diary App)
         if (!videoUri) {
             showAlert('Video yok!');
             return;
         }
-<<<<<<< HEAD
         // TanStack Query mutation'ını tetikliyoruz
         cropVideoMutation.mutate(
             { uri: videoUri, start: startTime, duration: 5 },
@@ -377,26 +305,6 @@ export default function VideoCropScreen() {
                 },
             }
         );
-=======
-        try {
-            const croppedUri = await cropVideo(videoUri, startTime, 5);
-            const newVideo = {
-                id: Date.now().toString(),
-                uri: croppedUri,
-                name: data.videoName,
-                description: data.videoDescription,
-            };
-            addVideo(newVideo);
-            setFormModalVisible(false);
-            showAlert('Video başarıyla kırpıldı!');
-            setVideoUri(null);
-            setVideoDuration(0);
-            setCurrentPlaybackTime(0);
-            setStartTime(0);
-        } catch (err) {
-            showAlert('Video kırpma işlemi başarısız oldu!');
-        }
->>>>>>> 965c23b (İlk commit: Video Diary App)
     };
 
     return (
@@ -415,11 +323,7 @@ export default function VideoCropScreen() {
                         <Video
                             ref={playerRef}
                             source={{ uri: videoUri }}
-<<<<<<< HEAD
                             style={{ width: '100%', height: '100%' }}
-=======
-                            style={{ width: '100%', height: 500 }}
->>>>>>> 965c23b (İlk commit: Video Diary App)
                             resizeMode={ResizeMode.CONTAIN}
                             useNativeControls={true}
                             onPlaybackStatusUpdate={handlePlaybackStatusUpdate}

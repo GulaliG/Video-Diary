@@ -1,17 +1,9 @@
-<<<<<<< HEAD
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoStore } from '@/store/videoStore';
 import { Video, ResizeMode } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
-=======
-// * Detaylar
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useVideoStore } from '@/store/videoStore';
-import { Video, ResizeMode } from 'expo-av';
->>>>>>> 965c23b (İlk commit: Video Diary App)
 
 export default function VideoDetails() {
     const { id } = useLocalSearchParams();
@@ -19,7 +11,6 @@ export default function VideoDetails() {
     const video = useVideoStore((state) => state.videos.find((v) => v.id === videoId));
     const router = useRouter();
 
-<<<<<<< HEAD
     const videoRef = useRef<Video>(null);
     const [loading, setLoading] = useState(true);
     const [fileExists, setFileExists] = useState(false);
@@ -40,8 +31,6 @@ export default function VideoDetails() {
         checkFileExists();
     }, [video?.uri]);
 
-=======
->>>>>>> 965c23b (İlk commit: Video Diary App)
     if (!video) {
         return (
             <View className="flex-1 bg-gray-900 justify-center items-center px-6">
@@ -58,7 +47,6 @@ export default function VideoDetails() {
 
     return (
         <View className="flex-1 bg-gray-900 px-6 py-8 items-center">
-<<<<<<< HEAD
             {loading ? (
                 <ActivityIndicator size="large" color="white" />
             ) : fileExists ? (
@@ -74,14 +62,6 @@ export default function VideoDetails() {
                 <Text className="text-red-400 text-lg font-semibold mt-4">Video dosyası bulunamadı!</Text>
             )}
 
-=======
-            <Video
-                source={{ uri: video.uri }}
-                style={{ width: '100%', height: 220, borderRadius: 10, backgroundColor: 'black' }}
-                useNativeControls
-                resizeMode={ResizeMode.CONTAIN}
-            />
->>>>>>> 965c23b (İlk commit: Video Diary App)
             <Text className="text-white text-2xl font-bold mt-4">{video.name}</Text>
             <Text className="text-gray-400 text-lg mt-2 text-center">{video.description}</Text>
 
