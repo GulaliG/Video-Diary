@@ -57,6 +57,7 @@
           "savePhotosPermission": "Allow $(PRODUCT_NAME) to save videos.",
           "isAccessMediaLocationEnabled": true
         }
+<<<<<<< HEAD
       ],
       [
         "expo-video",
@@ -64,6 +65,8 @@
           "supportsBackgroundPlayback": true,
           "supportsPictureInPicture": true
         }
+=======
+>>>>>>> 965c23b (İlk commit: Video Diary App)
       ]
     ],
     "experiments": {

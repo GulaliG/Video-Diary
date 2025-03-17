@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+<<<<<<< HEAD
 import "../global.css";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -13,6 +14,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // SplashScreen engellemesi
+=======
+import "../global.css"
+
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+>>>>>>> 965c23b (İlk commit: Video Diary App)
 SplashScreen.preventAutoHideAsync();
 
 // 2) React Query Client oluşturma
@@ -36,6 +44,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+<<<<<<< HEAD
       {/* 3) QueryClientProvider ile sarıyoruz */}
       <QueryClientProvider client={queryClient}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -46,6 +55,14 @@ export default function RootLayout() {
           <StatusBar style="auto" />
         </ThemeProvider>
       </QueryClientProvider>
+=======
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+>>>>>>> 965c23b (İlk commit: Video Diary App)
     </GestureHandlerRootView>
   );
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// * Ana sayfa
+>>>>>>> 965c23b (İlk commit: Video Diary App)
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -5,9 +9,12 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useVideoStore } from '@/store/videoStore';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+<<<<<<< HEAD
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import { Alert } from 'react-native';
+=======
+>>>>>>> 965c23b (İlk commit: Video Diary App)
 
 const CustomConfirmModal = ({ visible, message, onConfirm, onCancel }: {
   visible: boolean;
@@ -46,7 +53,11 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       loadVideos();
+<<<<<<< HEAD
     }, [])
+=======
+    }, [loadVideos])
+>>>>>>> 965c23b (İlk commit: Video Diary App)
   );
 
   const confirmDelete = (videoId: string) => {
@@ -62,6 +73,7 @@ export default function HomeScreen() {
     setModalVisible(false);
   };
 
+<<<<<<< HEAD
   const handleDownload = async (videoId: string) => {
     const video = videos.find(v => v.id === videoId);
     if (!video) {
@@ -95,6 +107,9 @@ export default function HomeScreen() {
       Alert.alert("Hata", "Video kaydedilemedi!");
     }
   };
+=======
+  const handleDownload = (videoId: string) => {};
+>>>>>>> 965c23b (İlk commit: Video Diary App)
 
   const AnimatedItem = ({ item }: { item: any }) => {
     const translateX = useSharedValue(0);
@@ -201,4 +216,8 @@ export default function HomeScreen() {
       )}
     </View>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 965c23b (İlk commit: Video Diary App)

@@ -1,4 +1,8 @@
 {
+<<<<<<< HEAD
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.compile.nullAnalysis.mode": "disabled"
+=======
+    "java.configuration.updateBuildConfiguration": "automatic"
+>>>>>>> 965c23b (İlk commit: Video Diary App)
 }

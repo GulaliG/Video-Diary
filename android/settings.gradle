@@ -21,7 +21,11 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
+<<<<<<< HEAD
 rootProject.name = 'Video Diary'
+=======
+rootProject.name = 'video-diary-app'
+>>>>>>> 965c23b (İlk commit: Video Diary App)
 
 dependencyResolutionManagement {
   versionCatalogs {
