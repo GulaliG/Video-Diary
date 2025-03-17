@@ -57,6 +57,13 @@
           "savePhotosPermission": "Allow $(PRODUCT_NAME) to save videos.",
           "isAccessMediaLocationEnabled": true
         }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
       ]
     ],
     "experiments": {

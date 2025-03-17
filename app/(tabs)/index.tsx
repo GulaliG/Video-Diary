@@ -1,4 +1,3 @@
-// * Ana sayfa
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -6,6 +5,9 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useVideoStore } from '@/store/videoStore';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from 'expo-file-system';
+import { Alert } from 'react-native';
 
 const CustomConfirmModal = ({ visible, message, onConfirm, onCancel }: {
   visible: boolean;
@@ -44,7 +46,7 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       loadVideos();
-    }, [loadVideos])
+    }, [])
   );
 
   const confirmDelete = (videoId: string) => {
@@ -60,7 +62,39 @@ export default function HomeScreen() {
     setModalVisible(false);
   };
 
-  const handleDownload = (videoId: string) => {};
+  const handleDownload = async (videoId: string) => {
+    const video = videos.find(v => v.id === videoId);
+    if (!video) {
+      Alert.alert("Hata", "Video bulunamadı!");
+      return;
+    }
+
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert("İzin Gerekli", "Lütfen galeriye kaydetme izni verin.");
+      return;
+    }
+
+    try {
+      // Hedef dosya yolu (Galeriye kaydetmek için)
+      const fileUri = FileSystem.documentDirectory + `video_${Date.now()}.mp4`;
+
+      // Dosyayı yeni konuma kopyala
+      await FileSystem.copyAsync({
+        from: video.uri,
+        to: fileUri,
+      });
+
+      // Videoyu Galeriye Kaydet
+      const asset = await MediaLibrary.createAssetAsync(fileUri);
+      await MediaLibrary.createAlbumAsync("Downloaded Videos", asset, false);
+
+      Alert.alert("Başarılı", "Video galeriye kaydedildi!");
+    } catch (error) {
+      console.log("Video kaydetme hatası:", error);
+      Alert.alert("Hata", "Video kaydedilemedi!");
+    }
+  };
 
   const AnimatedItem = ({ item }: { item: any }) => {
     const translateX = useSharedValue(0);

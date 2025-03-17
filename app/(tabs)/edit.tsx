@@ -53,16 +53,8 @@ export default function EditVideoScreen() {
     }
 
     return (
-        <View className="flex-1 bg-gray-900 px-6 py-8">
-            <Text className="text-white text-2xl font-bold mb-6">Video Düzenle</Text>
-            <View className="w-full h-3/4 bg-black rounded-lg mt-8">
-                <Video
-                    source={{ uri: video.uri }}
-                    style={{ width: '100%', height: '100%' }}
-                    resizeMode={ResizeMode.CONTAIN}
-                    useNativeControls={true}
-                />
-            </View>
+        <View className="flex-1 bg-gray-900 px-6 py-4">
+            <Text className="text-white text-2xl font-bold mb-4 mt-8">Video Düzenle</Text>
 
             <Controller
                 control={control}

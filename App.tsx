@@ -1,6 +1,11 @@
+// App.tsx
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, Slot } from 'expo-router';
 import SplashScreen from './app/screens/SplashScreen';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// React Query Client
+const queryClient = new QueryClient();
 
 export default function App() {
     const router = useRouter();
@@ -10,7 +15,7 @@ export default function App() {
         const timer = setTimeout(() => {
             setShowSplash(false);
             router.replace('/(tabs)');
-        }, 4000);
+        }, 5000);
 
         return () => clearTimeout(timer);
     }, []);
@@ -18,5 +23,10 @@ export default function App() {
     if (showSplash) {
         return <SplashScreen />;
     }
-    return null;
+
+    return (
+        <QueryClientProvider client={queryClient}>
+            <Slot />
+        </QueryClientProvider>
+    );
 }

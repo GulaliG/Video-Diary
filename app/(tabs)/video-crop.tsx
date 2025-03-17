@@ -1,12 +1,14 @@
+// video-crop.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, Image, ScrollView, TextInput, Animated, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { ResizeMode, AVPlaybackStatus, AVPlaybackStatusSuccess, Video, Audio } from 'expo-av';
 import { useVideoStore } from '@/store/videoStore';
-import { cropVideo, getThumbnail } from '../../utils/ffmpegUtils';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
+import { useCropVideoMutation } from '../../utils/useFFmpegMutations'; // Import TanStack Query hook
+import { getThumbnail } from '@/utils/ffmpegServices';
 
 function isStatusSuccess(status: AVPlaybackStatus): status is AVPlaybackStatusSuccess {
     return status.isLoaded && !('error' in status);
@@ -151,12 +153,15 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
             setProgress(0);
             const totalFrames = Math.floor(duration);
             const newThumbs: { uri: string; time: number }[] = [];
+            // Thumbnail üretiminde doğrudan servis fonksiyonunu kullanıyoruz.
             for (let i = 0; i < totalFrames; i++) {
                 try {
                     const thumbUri = await getThumbnail(videoUri, i);
                     newThumbs.push({ uri: thumbUri, time: i });
                     setProgress((i + 1) / totalFrames);
-                } catch (error) { }
+                } catch (error) {
+                    // Hata yönetimi
+                }
             }
             setThumbnails(newThumbs);
             setProgressModalVisible(false);
@@ -173,9 +178,9 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
         onChangeStart(popTime);
     };
 
-    // Görsel olarak overlay’i küçültmek için ölçek faktörü uyguluyoruz.
-    const overlayScaleFactor = 0.5; // %50 görsel boyut
-    const visualOverlayWidth = actualSelectionWidth * overlayScaleFactor; // Örneğin 300px'in %50'si = 150px
+    // Overlay görseli için ölçek faktörü
+    const overlayScaleFactor = 0.5; // %50
+    const visualOverlayWidth = actualSelectionWidth * overlayScaleFactor;
 
     return (
         <View className="absolute w-full bottom-0 h-20 bg-gray-800 rounded-lg mb-4">
@@ -197,7 +202,7 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
                 <View style={{ width: spacerWidth }} />
             </ScrollView>
 
-            {/* Overlay görseli, merkezde yerleşecek şekilde */}
+            {/* Overlay, merkezde yerleşecek */}
             <View
                 className="absolute top-0 bottom-0"
                 style={{
@@ -225,6 +230,9 @@ export default function VideoCropScreen() {
     const addVideo = useVideoStore((state) => state.addVideo);
     const playerRef = useRef<Video>(null);
 
+    // TanStack Query mutation kullanımı
+    const cropVideoMutation = useCropVideoMutation();
+
     useEffect(() => {
         (async () => {
             await Audio.setAudioModeAsync({
@@ -243,7 +251,7 @@ export default function VideoCropScreen() {
 
     const pickVideo = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+            mediaTypes: ['videos'],
             allowsEditing: false,
         });
         if (!result.canceled && result.assets.length > 0) {
@@ -268,30 +276,35 @@ export default function VideoCropScreen() {
         setFormModalVisible(true);
     };
 
-    const handleFormSubmit = async (data: { videoName: string; videoDescription: string }) => {
+    const handleFormSubmit = (data: { videoName: string; videoDescription: string }) => {
         if (!videoUri) {
             showAlert('Video yok!');
             return;
         }
-        try {
-            // Crop işlemi 5 saniye üzerinden yapılıyor
-            const croppedUri = await cropVideo(videoUri, startTime, 5);
-            const newVideo = {
-                id: Date.now().toString(),
-                uri: croppedUri,
-                name: data.videoName,
-                description: data.videoDescription,
-            };
-            addVideo(newVideo);
-            setFormModalVisible(false);
-            showAlert('Video başarıyla kırpıldı!');
-            setVideoUri(null);
-            setVideoDuration(0);
-            setCurrentPlaybackTime(0);
-            setStartTime(0);
-        } catch (err) {
-            showAlert('Video kırpma işlemi başarısız oldu!');
-        }
+        // TanStack Query mutation'ını tetikliyoruz
+        cropVideoMutation.mutate(
+            { uri: videoUri, start: startTime, duration: 5 },
+            {
+                onSuccess: (croppedUri) => {
+                    const newVideo = {
+                        id: Date.now().toString(),
+                        uri: croppedUri,
+                        name: data.videoName,
+                        description: data.videoDescription,
+                    };
+                    addVideo(newVideo);
+                    setFormModalVisible(false);
+                    showAlert('Video başarıyla kırpıldı!');
+                    setVideoUri(null);
+                    setVideoDuration(0);
+                    setCurrentPlaybackTime(0);
+                    setStartTime(0);
+                },
+                onError: () => {
+                    showAlert('Video kırpma işlemi başarısız oldu!');
+                },
+            }
+        );
     };
 
     return (

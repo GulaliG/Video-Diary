@@ -1,14 +1,35 @@
-// * Detaylar
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoStore } from '@/store/videoStore';
 import { Video, ResizeMode } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
+import { useEffect, useRef, useState } from 'react';
 
 export default function VideoDetails() {
     const { id } = useLocalSearchParams();
     const videoId = String(id);
     const video = useVideoStore((state) => state.videos.find((v) => v.id === videoId));
     const router = useRouter();
+
+    const videoRef = useRef<Video>(null);
+    const [loading, setLoading] = useState(true);
+    const [fileExists, setFileExists] = useState(false);
+
+    useEffect(() => {
+        const checkFileExists = async () => {
+            if (video?.uri) {
+                try {
+                    const fileInfo = await FileSystem.getInfoAsync(video.uri);
+                    console.log("Dosya Bilgisi:", fileInfo);
+                    setFileExists(fileInfo.exists);
+                } catch (error) {
+                    console.error("Dosya kontrol hatası:", error);
+                }
+            }
+            setLoading(false);
+        };
+        checkFileExists();
+    }, [video?.uri]);
 
     if (!video) {
         return (
@@ -26,12 +47,21 @@ export default function VideoDetails() {
 
     return (
         <View className="flex-1 bg-gray-900 px-6 py-8 items-center">
-            <Video
-                source={{ uri: video.uri }}
-                style={{ width: '100%', height: 220, borderRadius: 10, backgroundColor: 'black' }}
-                useNativeControls
-                resizeMode={ResizeMode.CONTAIN}
-            />
+            {loading ? (
+                <ActivityIndicator size="large" color="white" />
+            ) : fileExists ? (
+                <View className="w-full h-3/4 bg-black rounded-lg mt-8">
+                    <Video
+                        source={{ uri: video.uri }}
+                        style={{ width: '100%', height: '100%' }}
+                        resizeMode={ResizeMode.CONTAIN}
+                        useNativeControls={true}
+                    />
+                </View>
+            ) : (
+                <Text className="text-red-400 text-lg font-semibold mt-4">Video dosyası bulunamadı!</Text>
+            )}
+
             <Text className="text-white text-2xl font-bold mt-4">{video.name}</Text>
             <Text className="text-gray-400 text-lg mt-2 text-center">{video.description}</Text>
 
