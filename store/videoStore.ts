@@ -73,8 +73,4 @@ export const useVideoStore = create<VideoStore>((set) => ({
             }
         } catch (error) {}
     },
-<<<<<<< HEAD
 }));
-=======
-}));
->>>>>>> 965c23b (İlk commit: Video Diary App)
