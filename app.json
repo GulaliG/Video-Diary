@@ -58,6 +58,15 @@
           "savePhotosPermission": "Allow $(PRODUCT_NAME) to save videos.",
           "isAccessMediaLocationEnabled": true
         }
+      ],
+      [
+        "@config-plugins/ffmpeg-kit-react-native",
+        {
+          "package": "min",
+          "ios": {
+            "package": "video"
+          }
+        }
       ]
     ],
     "experiments": {

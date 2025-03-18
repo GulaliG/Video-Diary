@@ -112,7 +112,8 @@ Follow Expo’s guide to publish to the **App Store & Google Play**:
 ## 🏁 **Conclusion**
 This document provides a complete **setup and usage guide** for **SevenApps Video Diary App**. The app is designed with **scalability, performance, and usability in mind**, integrating **modern React Native technologies** for an efficient and seamless video management experience.
 
-🔹 **Possible Future Enhancements:**
+🔹 **Future Enhancements:**
+✅ Use `expo-video` instead of `expo-av`.
 ✅ Make code more modular. **Currently the clean code ratio is 85-90%.** In future I will split to components.
 ✅ Implement **SQLite for structured data storage** instead of AsyncStorage.
 ✅ Use `expo-task-manager` for **background video processing**.

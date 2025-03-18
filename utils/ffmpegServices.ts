@@ -1,12 +1,16 @@
 import { FFmpegKit } from 'ffmpeg-kit-react-native';
 import * as FileSystem from 'expo-file-system';
 
-//ffmpeg fonksiyonu
+function normalizePath(uri: string): string {
+    return uri.replace(/^file:\/\//, '');
+}
+
+// kesme islemini yapiyoruz kopyalama mantigi ile
 export async function cropVideo(uri: string, start: number, duration: number): Promise<string> {
     const outputUri = `${FileSystem.cacheDirectory}cropped_${Date.now()}.mp4`;
-    const formattedUri = uri.startsWith('file://') ? uri : `file://${uri}`;
+    const formattedUri = normalizePath(uri);
     const startTime = start.toFixed(2);
-    const command = `-y -i "${formattedUri}" -ss ${startTime} -to ${(start + duration).toFixed(2)} -c:v libx264 -preset ultrafast -crf 23 -c:a aac -b:a 128k "${outputUri}"`;
+    const command = `-y -i "${formattedUri}" -ss ${startTime} -t ${(duration).toFixed(2)} -c copy "${normalizePath(outputUri)}"`;
 
     console.log("Executing FFmpeg:", command);
 
@@ -30,11 +34,12 @@ export async function cropVideo(uri: string, start: number, duration: number): P
     return outputUri;
 }
 
+// fotolari aliyoruz
 export async function getThumbnail(uri: string, time: number): Promise<string> {
     const outputUri = `${FileSystem.cacheDirectory}thumbnail_${Date.now()}_${time}.jpg`;
-    const formattedUri = uri.startsWith('file://') ? uri : `file://${uri}`;
+    const formattedUri = normalizePath(uri);
     const timeStr = time.toFixed(2);
-    const command = `-y -i "${formattedUri}" -ss ${timeStr} -vframes 1 "${outputUri}"`;
+    const command = `-y -i "${formattedUri}" -ss ${timeStr} -vframes 1 "${normalizePath(outputUri)}"`;
 
     console.log("Executing FFmpeg:", command);
 
