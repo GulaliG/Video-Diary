@@ -1,7 +1,7 @@
-// useFFmpegMutations.ts
 import { useMutation } from '@tanstack/react-query';
 import { cropVideo, getThumbnail } from './ffmpegServices';
 
+// tanstack ile sarmalama yapiyoruz
 export const useCropVideoMutation = () => {
     return useMutation({
         mutationFn: async ({ uri, start, duration }: { uri: string; start: number; duration: number }) =>

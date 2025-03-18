@@ -1,4 +1,3 @@
-// video-crop.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, Image, ScrollView, TextInput, Animated, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -7,18 +6,20 @@ import { useVideoStore } from '@/store/videoStore';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
-import { useCropVideoMutation } from '../../utils/useFFmpegMutations'; // Import TanStack Query hook
+import { useCropVideoMutation } from '../../utils/useFFmpegMutations';
 import { getThumbnail } from '@/utils/ffmpegServices';
 
 function isStatusSuccess(status: AVPlaybackStatus): status is AVPlaybackStatusSuccess {
     return status.isLoaded && !('error' in status);
 }
 
+//validate ediyoruz
 const videoSchema = z.object({
     videoName: z.string().min(3, 'Video adı en az 3 karakter olmalı'),
     videoDescription: z.string().min(5, 'Açıklama en az 5 karakter olmalı'),
 });
 
+//alert modal
 const CustomAlert = ({ visible, message, onClose }: { visible: boolean; message: string; onClose: () => void; }) => (
     <Modal visible={visible} transparent animationType="fade">
         <View className="flex-1 justify-center items-center bg-black/70">
@@ -32,6 +33,7 @@ const CustomAlert = ({ visible, message, onClose }: { visible: boolean; message:
     </Modal>
 );
 
+//form modal
 const FormModal = ({ visible, onClose, onSubmit }: { visible: boolean; onClose: () => void; onSubmit: (data: { videoName: string; videoDescription: string }) => void; }) => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm({
         resolver: zodResolver(videoSchema),
@@ -89,6 +91,7 @@ const FormModal = ({ visible, onClose, onSubmit }: { visible: boolean; onClose: 
     );
 };
 
+// animasyon modali
 const AnimatedProgressBar = ({ visible, progress }: { visible: boolean; progress: number; }) => {
     const animation = useRef(new Animated.Value(0)).current;
     useEffect(() => {
@@ -132,6 +135,7 @@ interface TimelineProps {
     onTouchEnd?: () => void;
 }
 
+//timestamp modali
 const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart, onTouchEnd }: TimelineProps) => {
     const THUMB_WIDTH = 60;
     const cropDuration = 5; // Gerçek kırpma süresi 5 saniye
@@ -173,13 +177,11 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
         const effectiveOffset = Math.max(0, offsetX - spacerWidth);
         scrollOffset.setValue(effectiveOffset);
         const leftTime = effectiveOffset / THUMB_WIDTH;
-        // Zaman hesabı için asıl 5 saniyelik alanı esas alıyoruz
         const popTime = leftTime + (actualSelectionWidth / 2) / THUMB_WIDTH;
         onChangeStart(popTime);
     };
 
-    // Overlay görseli için ölçek faktörü
-    const overlayScaleFactor = 0.5; // %50
+    const overlayScaleFactor = 0.5;
     const visualOverlayWidth = actualSelectionWidth * overlayScaleFactor;
 
     return (
@@ -202,7 +204,6 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
                 <View style={{ width: spacerWidth }} />
             </ScrollView>
 
-            {/* Overlay, merkezde yerleşecek */}
             <View
                 className="absolute top-0 bottom-0"
                 style={{
@@ -218,6 +219,7 @@ const Timeline = ({ videoUri, duration, onChangeStart, currentTime, onTouchStart
     );
 };
 
+// video kirpma fonksiyonu
 export default function VideoCropScreen() {
     const [videoUri, setVideoUri] = useState<string | null>(null);
     const [videoDuration, setVideoDuration] = useState(0);
@@ -229,8 +231,6 @@ export default function VideoCropScreen() {
 
     const addVideo = useVideoStore((state) => state.addVideo);
     const playerRef = useRef<Video>(null);
-
-    // TanStack Query mutation kullanımı
     const cropVideoMutation = useCropVideoMutation();
 
     useEffect(() => {
@@ -281,7 +281,6 @@ export default function VideoCropScreen() {
             showAlert('Video yok!');
             return;
         }
-        // TanStack Query mutation'ını tetikliyoruz
         cropVideoMutation.mutate(
             { uri: videoUri, start: startTime, duration: 5 },
             {

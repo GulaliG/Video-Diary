@@ -1,10 +1,11 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoStore } from '@/store/videoStore';
 import { Video, ResizeMode } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
 
+// detaylar fonksiyonu
 export default function VideoDetails() {
     const { id } = useLocalSearchParams();
     const videoId = String(id);
@@ -20,7 +21,6 @@ export default function VideoDetails() {
             if (video?.uri) {
                 try {
                     const fileInfo = await FileSystem.getInfoAsync(video.uri);
-                    console.log("Dosya Bilgisi:", fileInfo);
                     setFileExists(fileInfo.exists);
                 } catch (error) {
                     console.error("Dosya kontrol hatası:", error);
@@ -46,31 +46,45 @@ export default function VideoDetails() {
     }
 
     return (
-        <View className="flex-1 bg-gray-900 px-6 py-8 items-center">
-            {loading ? (
-                <ActivityIndicator size="large" color="white" />
-            ) : fileExists ? (
-                <View className="w-full h-3/4 bg-black rounded-lg mt-8">
-                    <Video
-                        source={{ uri: video.uri }}
-                        style={{ width: '100%', height: '100%' }}
-                        resizeMode={ResizeMode.CONTAIN}
-                        useNativeControls={true}
-                    />
-                </View>
-            ) : (
-                <Text className="text-red-400 text-lg font-semibold mt-4">Video dosyası bulunamadı!</Text>
-            )}
-
-            <Text className="text-white text-2xl font-bold mt-4">{video.name}</Text>
-            <Text className="text-gray-400 text-lg mt-2 text-center">{video.description}</Text>
-
-            <TouchableOpacity
-                onPress={() => router.push({ pathname: "/edit", params: { id: video.id } })}
-                className="bg-green-500 p-3 rounded-lg shadow-lg mt-6 w-full"
+        <View className="flex-1 bg-gray-900">
+            <ScrollView
+                className="flex-1 px-6 py-8"
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
             >
-                <Text className="text-white text-lg font-semibold text-center">Düzenle</Text>
-            </TouchableOpacity>
+                {loading ? (
+                    <ActivityIndicator size="large" color="white" />
+                ) : fileExists ? (
+                    <View className="w-full bg-black rounded-lg mt-8">
+                        <Video
+                            source={{ uri: video.uri }}
+                            style={{ width: '100%', height: undefined, aspectRatio: 9 / 16 }}
+                            resizeMode={ResizeMode.CONTAIN}
+                            useNativeControls={true}
+                        />
+                    </View>
+                ) : (
+                    <Text className="text-red-400 text-lg font-semibold mt-4">
+                        Video dosyası bulunamadı!
+                    </Text>
+                )}
+
+                <Text className="text-white text-2xl pl-2 font-bold mt-4 text-left w-full">
+                    Video İsmi: {video.name}
+                </Text>
+                <Text className="text-gray-400 text-xl pl-2 mt-2 text-left w-full">
+                    Video Açıklaması: {video.description}
+                </Text>
+            </ScrollView>
+
+            {/* Düzenle Butonu */}
+            <View className="p-4 bg-gray-900">
+                <TouchableOpacity
+                    onPress={() => router.push({ pathname: "/edit", params: { id: video.id } })}
+                    className="bg-green-500 p-3 rounded-lg shadow-lg w-full"
+                >
+                    <Text className="text-white text-lg font-semibold text-center">Düzenle</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }

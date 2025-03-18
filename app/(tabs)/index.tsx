@@ -9,6 +9,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import { Alert } from 'react-native';
 
+//delete modal
 const CustomConfirmModal = ({ visible, message, onConfirm, onCancel }: {
   visible: boolean;
   message: string;
@@ -34,6 +35,27 @@ const CustomConfirmModal = ({ visible, message, onConfirm, onCancel }: {
   );
 };
 
+// download modal
+const CustomDownloadModal = ({ visible, message, onClose }: {
+  visible: boolean;
+  message: string;
+  onClose: () => void;
+}) => {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <View className="flex-1 justify-center items-center bg-black/70">
+        <View className="bg-gray-800 p-8 rounded-lg w-4/5 shadow-lg">
+          <Text className="text-white text-lg text-center font-semibold">{message}</Text>
+          <TouchableOpacity onPress={onClose} className="bg-green-500 px-6 py-3 rounded-lg mt-6">
+            <Text className="text-white text-lg font-semibold text-center">Tamam</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// ana fonksiyon
 export default function HomeScreen() {
   const videos = useVideoStore((state) => state.videos);
   const loadVideos = useVideoStore((state) => state.loadVideos);
@@ -62,6 +84,9 @@ export default function HomeScreen() {
     setModalVisible(false);
   };
 
+  const [downloadModalVisible, setDownloadModalVisible] = useState(false);
+  const [downloadMessage, setDownloadMessage] = useState("");
+
   const handleDownload = async (videoId: string) => {
     const video = videos.find(v => v.id === videoId);
     if (!video) {
@@ -76,22 +101,19 @@ export default function HomeScreen() {
     }
 
     try {
-      // Hedef dosya yolu (Galeriye kaydetmek için)
       const fileUri = FileSystem.documentDirectory + `video_${Date.now()}.mp4`;
 
-      // Dosyayı yeni konuma kopyala
       await FileSystem.copyAsync({
         from: video.uri,
         to: fileUri,
       });
 
-      // Videoyu Galeriye Kaydet
       const asset = await MediaLibrary.createAssetAsync(fileUri);
       await MediaLibrary.createAlbumAsync("Downloaded Videos", asset, false);
 
-      Alert.alert("Başarılı", "Video galeriye kaydedildi!");
+      setDownloadMessage("Video galeriye kaydedildi!");
+      setDownloadModalVisible(true);
     } catch (error) {
-      console.log("Video kaydetme hatası:", error);
       Alert.alert("Hata", "Video kaydedilemedi!");
     }
   };
@@ -166,8 +188,8 @@ export default function HomeScreen() {
               onPress={() => router.push({ pathname: '/details', params: { id: item.id } })}
               activeOpacity={0.8}
             >
-              <Text className="text-white text-xl font-semibold mt-2">{item.name}</Text>
-              <Text className="text-gray-400">{item.description}</Text>
+              <Text className="text-white text-2xl pb-3 font-semibold">{item.name}</Text>
+              <Text className="text-gray-400 text-xl">{item.description}</Text>
             </TouchableOpacity>
           </Animated.View>
         </GestureDetector>
@@ -182,6 +204,11 @@ export default function HomeScreen() {
         message="Bu videoyu silmek istediğinizden emin misiniz?"
         onConfirm={handleDelete}
         onCancel={() => setModalVisible(false)}
+      />
+      <CustomDownloadModal
+        visible={downloadModalVisible}
+        message={downloadMessage}
+        onClose={() => setDownloadModalVisible(false)}
       />
 
       <Text className="text-white text-2xl font-bold mb-4">Kırpılmış Videolar</Text>
