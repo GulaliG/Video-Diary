@@ -37,8 +37,8 @@ This app is built with **modern best practices** for React Native development, e
 
 ### **1️⃣ Clone the Repository**
 ```sh
-git clone https://github.com/your-repo/video-diary-app.git
-cd video-diary-app
+git clone https://github.com/GulaliG/Video-Diary.git
+cd Video-Diary
 ```
 
 ### **2️⃣ Install Dependencies**
